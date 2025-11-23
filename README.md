@@ -1,142 +1,185 @@
 # Auto Job Applicant 🤖
 
-An intelligent, automated job application system that scrapes job listings, matches them to your profile, generates tailored resumes, and applies on your behalf - all with your approval.
+An intelligent, fully automated job application system powered by **Claude 3.5 Sonnet**. Simply upload your resume and let AI handle the rest - from parsing your experience to generating tailored PDFs to applying to jobs.
+
+## ✨ NEW: One-Command Job Search
+
+```bash
+# Upload your resume and automatically start applying to jobs
+python main.py upload myresume.pdf --auto
+```
+
+That's it! Claude will:
+1. Extract all information from your resume
+2. Infer what jobs you should apply for based on your experience
+3. Search LinkedIn and Indeed for matching positions
+4. Generate tailored PDF resumes for each job
+5. Ask for your approval before applying
+6. Submit applications automatically
 
 ## Features
 
-- **🔍 Multi-Platform Job Scraping**: Automatically scrape jobs from LinkedIn, Indeed, and more
-- **🎯 Smart Matching**: AI-powered job matching based on your skills, experience, and preferences
-- **📄 Tailored Resume Generation**: Automatically generate customized resumes for each position using AI
-- **🤖 Automated Applications**: Navigate application forms and submit applications automatically
-- **✅ Human-in-the-Loop**: Review and approve jobs and resumes before applying
-- **📊 Application Tracking**: Track all your applications in one place
+- **🤖 Powered by Claude 3.5 Sonnet**: State-of-the-art AI for resume parsing, generation, and job matching
+- **📄 Automatic Resume Parsing**: Upload PDF/DOCX resume, Claude extracts everything automatically
+- **🎯 Smart Job Inference**: AI analyzes your background and determines the best job targets
+- **🔍 Multi-Platform Job Scraping**: Automatically search LinkedIn, Indeed, and more
+- **📑 AI-Generated PDF Resumes**: Claude creates professionally formatted, ATS-optimized PDFs tailored to each position
+- **✅ Human-in-the-Loop**: Review and approve jobs and resumes before submission
+- **🚀 Automated Applications**: Navigate forms and submit applications automatically
+- **📊 Application Tracking**: Track all your applications in a local database
 - **🔒 Privacy-Focused**: All data stored locally on your machine
 
-## How It Works
+## Quick Start
 
-1. **Configure Your Profile**: Set up your experience, skills, and job preferences
-2. **Scrape Jobs**: Search for relevant positions across multiple job boards
-3. **Review Matches**: Review AI-matched jobs with scores and insights
-4. **Generate Resumes**: AI creates tailored resumes for each position
-5. **Approve & Apply**: Review resumes and approve applications
-6. **Track Progress**: Monitor all your applications in one dashboard
+### 1. Install
 
-## Installation
-
-### Prerequisites
-
-- Python 3.8 or higher
-- Chrome browser (for Selenium automation)
-- OpenAI API key (optional, for AI resume generation)
-
-### Setup
-
-1. Clone the repository:
 ```bash
+# Clone the repository
 git clone <repository-url>
 cd auto-apply
-```
 
-2. Install dependencies:
-```bash
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-3. Install Playwright browsers (alternative to Selenium):
-```bash
-playwright install chromium
-```
+### 2. Get Claude API Key
 
-4. Run the setup wizard:
-```bash
-python main.py setup
-```
+Get your Anthropic API key at: https://console.anthropic.com/
 
-5. Configure your profile:
-```bash
-# Edit the user profile with your information
-nano config/user_profile.json
-# or
-python main.py profile --edit
-```
+Add $10-20 credit (enough for hundreds of applications)
 
-6. Set up environment variables:
+### 3. Configure
+
 ```bash
+# Copy environment template
 cp .env.example .env
-# Edit .env and add your API keys
-nano .env
+
+# Edit .env and add your Claude API key
+# ANTHROPIC_API_KEY=your_key_here
 ```
 
-## Configuration
-
-### User Profile (`config/user_profile.json`)
-
-Edit this file to include:
-- **Personal Information**: Name, email, phone, location, LinkedIn, GitHub
-- **Job Preferences**: Desired titles, locations, job types, salary requirements
-- **Experience**: Your work history with detailed accomplishments
-- **Education**: Degrees and certifications
-- **Skills**: Programming languages, frameworks, tools
-- **Projects**: Notable projects and achievements
-
-### Environment Variables (`.env`)
-
-```env
-# OpenAI API Key for resume generation
-OPENAI_API_KEY=your_openai_api_key_here
-
-# Job Platform Credentials (optional)
-LINKEDIN_EMAIL=your_email@example.com
-LINKEDIN_PASSWORD=your_password
-
-# Application Settings
-AUTO_APPLY_DELAY=5
-MAX_APPLICATIONS_PER_DAY=10
-```
-
-## Usage
-
-### 1. Scrape Jobs
-
-Search for jobs on LinkedIn or Indeed:
+### 4. Upload Resume & Start Applying
 
 ```bash
-# Interactive mode (will prompt for query)
+# Automatic mode - does everything for you
+python main.py upload /path/to/resume.pdf --auto
+
+# Or manual mode - upload first, then control the process
+python main.py upload /path/to/resume.pdf
+python main.py scrape  # Search for jobs
+python main.py review  # Apply to jobs
+```
+
+## How It Works
+
+### Automatic Mode (`--auto` flag)
+
+```bash
+python main.py upload resume.pdf --auto
+```
+
+1. **Resume Parsing**: Claude extracts your:
+   - Contact information
+   - Work experience with accomplishments
+   - Education and certifications
+   - Technical and soft skills
+   - Projects and achievements
+
+2. **Job Preference Inference**: Claude analyzes your background to determine:
+   - Best job titles to target (e.g., "Senior Software Engineer", "Full Stack Developer")
+   - Appropriate experience level (Entry/Mid/Senior)
+   - Key technologies to match (Python, React, AWS, etc.)
+   - Technologies to avoid (things you don't have experience with)
+   - Realistic salary expectations
+   - Preferred work arrangements (Remote, specific cities)
+
+3. **Automatic Job Search**: System searches LinkedIn/Indeed for:
+   - Top 2-3 inferred job titles
+   - In your preferred locations
+   - Matching your experience level
+
+4. **Job Matching**: Each job gets a match score (0-100%) based on:
+   - Title alignment (30 points)
+   - Location match (15 points)
+   - Keyword overlap (30 points)
+   - No excluded keywords (15 points)
+   - Job type match (10 points)
+
+5. **Resume Generation**: For each approved job, Claude creates:
+   - Tailored professional summary emphasizing relevant experience
+   - Rewritten experience bullets highlighting applicable skills
+   - ATS-optimized PDF with keyword optimization
+   - Professional formatting
+
+6. **Human Approval**: You review:
+   - Each job (with match score and insights)
+   - Each generated PDF resume
+   - Option to view PDFs before approving
+
+7. **Automated Application**: System:
+   - Detects "Easy Apply" buttons
+   - Fills personal information
+   - Uploads your tailored resume
+   - Answers screening questions
+   - Submits applications
+
+## Commands
+
+### `upload` - Upload Resume & Create Profile
+
+```bash
+# Interactive mode
+python main.py upload
+
+# With file path
+python main.py upload /path/to/resume.pdf
+
+# Automatic mode (upload + search + apply)
+python main.py upload resume.pdf --auto
+```
+
+### `scrape` - Search for Jobs
+
+```bash
+# Interactive (will prompt for job title)
 python main.py scrape
 
 # With parameters
-python main.py scrape --platform linkedin --query "Software Engineer" --location "Remote" --num-jobs 50
+python main.py scrape -p linkedin -q "Software Engineer" -l "Remote" -n 50
 
-# Indeed
-python main.py scrape --platform indeed --query "Python Developer" --location "San Francisco, CA"
+# Search Indeed
+python main.py scrape -p indeed -q "Python Developer" -l "San Francisco"
 ```
 
-### 2. Review and Apply
-
-Review scraped jobs and select which to apply to:
+### `review` - Review and Apply to Jobs
 
 ```bash
 python main.py review
 ```
 
-This will:
-1. Show you each matching job with details and match score
-2. Ask if you want to apply to each job
-3. Generate tailored resumes for approved jobs
-4. Show you each resume for approval
-5. Submit applications to approved jobs
+Shows each job with:
+- Job details and description
+- Match score and insights
+- Option to apply (y/n/q)
 
-### 3. View Application History
+For approved jobs:
+- Generates tailored PDF resume
+- Shows resume for approval
+- Option to view PDF (v)
+- Submits applications
 
-Track all your applications:
+### `applications` - View Application History
 
 ```bash
 python main.py applications
 ```
 
-### 4. Manage Profile
+Shows table of:
+- Job title and company
+- Application status
+- Date applied
 
-View or edit your profile:
+### `profile` - View/Edit Profile
 
 ```bash
 # View profile
@@ -146,134 +189,205 @@ python main.py profile
 python main.py profile --edit
 ```
 
+### `setup` - Initial Setup Wizard
+
+```bash
+python main.py setup
+```
+
 ## Project Structure
 
 ```
 auto-apply/
-├── main.py                      # Entry point
-├── requirements.txt             # Python dependencies
-├── .env.example                 # Environment variables template
+├── main.py                          # CLI entry point
+├── requirements.txt                 # Dependencies
+├── .env                            # Your API keys (gitignored)
 ├── config/
-│   └── user_profile.json        # User profile configuration
+│   └── user_profile.json           # Your profile (auto-generated)
 ├── src/
-│   ├── cli.py                   # CLI interface
-│   ├── config.py                # Configuration management
-│   ├── database.py              # SQLite database operations
-│   ├── models.py                # Data models
-│   ├── matcher.py               # Job matching logic
-│   ├── resume_generator.py     # AI resume generation
+│   ├── cli.py                      # Interactive CLI
+│   ├── models.py                   # Data models
+│   ├── matcher.py                  # Job matching algorithm
+│   ├── resume_generator.py        # AI resume generation (Claude)
+│   ├── resume_parser.py           # Resume parsing (Claude)
+│   ├── database.py                # SQLite operations
 │   ├── scrapers/
-│   │   ├── base_scraper.py     # Base scraper class
-│   │   ├── linkedin_scraper.py # LinkedIn job scraper
-│   │   └── indeed_scraper.py   # Indeed job scraper
+│   │   ├── linkedin_scraper.py    # LinkedIn scraper
+│   │   └── indeed_scraper.py      # Indeed scraper
 │   └── automation/
-│       ├── applicator.py        # Main application automation
-│       └── application_filler.py # Form filling logic
-├── data/                        # Generated databases
-├── logs/                        # Application logs
-├── generated_resumes/           # Generated resume files
-└── application_history/         # Application records
+│       ├── applicator.py          # Application automation
+│       └── application_filler.py  # Form filling logic
+├── data/                          # SQLite database
+├── generated_resumes/             # Your tailored PDFs
+└── application_history/           # Application records
 ```
 
-## How Job Matching Works
+## Why Claude?
 
-The system uses a scoring algorithm (0-100) based on:
+This system uses **Claude 3.5 Sonnet** exclusively for several reasons:
 
-- **Title Match (30 points)**: How well the job title matches your preferences
-- **Location Match (15 points)**: Whether the location matches your preferences
-- **Keywords Match (30 points)**: How many of your skills appear in the job description
-- **No Excluded Keywords (15 points)**: Job doesn't contain keywords you want to avoid
-- **Job Type Match (10 points)**: Full-time, contract, etc.
+1. **Superior Resume Parsing**: Claude excels at extracting structured information from unstructured text
+2. **Context Understanding**: 200K token context window allows processing entire resumes and job descriptions
+3. **Professional Writing**: Claude produces professional, accurate resume content without hallucinations
+4. **Cost-Effective**: ~$3 per million tokens (vs $10 for GPT-4)
+5. **Reliable**: Consistent, high-quality outputs with strong safety features
 
-Jobs with a score of 50% or higher are considered good matches.
+### Cost Estimate
 
-## Resume Generation
+For 100 job applications:
+- Resume parsing: $0.20
+- Job preference inference: $0.10
+- Resume generation (100 tailored resumes): $0.40
+- **Total: ~$0.70 for 100 applications**
 
-The system generates tailored resumes by:
+Extremely cost-effective compared to manual application time!
 
-1. **AI-Powered Summary**: Creates a professional summary tailored to each job
-2. **Optimized Experience**: Rewrites your experience bullets to emphasize relevant skills
-3. **Keyword Optimization**: Ensures your resume includes keywords from the job description
-4. **Professional Formatting**: Creates clean, ATS-friendly DOCX format resumes
+## Advanced Features
 
-Resumes are saved in `generated_resumes/` and you can review each one before applying.
+### Generated PDF Resumes
 
-## Application Automation
+Claude generates professional PDF resumes with:
+- Clean, ATS-friendly formatting
+- Tailored professional summary for each job
+- Rewritten experience bullets emphasizing relevant skills
+- Keyword optimization for applicant tracking systems
+- Consistent formatting and styling
 
-The automation system:
+PDFs are saved in `generated_resumes/` for your records.
 
-1. Detects "Easy Apply" buttons (LinkedIn, Indeed)
-2. Navigates multi-step application forms
-3. Fills in personal information automatically
-4. Uploads your tailored resume
-5. Answers common screening questions
-6. Handles external application redirects
+### Job Matching Algorithm
 
-**Note**: Some applications may require manual completion, especially those on external company websites.
+Scoring breakdown (0-100%):
+- **Title Match (30%)**: Job title matches your target roles
+- **Location Match (15%)**: Location matches preferences or remote
+- **Keyword Match (30%)**: Your skills appear in job description
+- **Exclusion Check (15%)**: No deal-breaker keywords found
+- **Job Type (10%)**: Full-time, contract, etc. matches preference
 
-## Safety Features
+Jobs scoring 50%+ are considered good matches.
 
-- **Human Approval Required**: You must approve each job and resume before applying
-- **Rate Limiting**: Configurable delays between applications to avoid detection
-- **Dry Run Mode**: Test the system without actually submitting applications
-- **Application Tracking**: Complete history of all applications and their status
-- **Local Storage**: All data stays on your machine
+### Application Automation
+
+The system can:
+- Detect "Easy Apply" buttons (LinkedIn, Indeed)
+- Navigate multi-step application forms
+- Fill personal information fields
+- Upload resume files
+- Answer common screening questions
+- Submit applications automatically
+
+**Note**: Some external company portals may require manual completion.
+
+## Safety & Privacy
+
+- ✅ All data stored locally on your machine
+- ✅ No data sent to third parties (except Anthropic API for AI processing)
+- ✅ Human approval required for every job and resume
+- ✅ Rate limiting to avoid platform detection
+- ✅ Configurable daily application limits
+- ✅ Dry-run mode for testing
+
+## Configuration
+
+### Environment Variables (`.env`)
+
+```env
+# Required
+ANTHROPIC_API_KEY=your_anthropic_key
+
+# Optional - for LinkedIn/Indeed login
+LINKEDIN_EMAIL=your_email
+LINKEDIN_PASSWORD=your_password
+INDEED_EMAIL=your_email
+INDEED_PASSWORD=your_password
+
+# Application settings
+AUTO_APPLY_DELAY=5
+MAX_APPLICATIONS_PER_DAY=10
+```
+
+### User Profile
+
+Auto-generated when you upload your resume, or manually edit `config/user_profile.json`:
+
+```json
+{
+  "personal_info": { ... },
+  "job_preferences": {
+    "titles": ["Software Engineer", "Full Stack Developer"],
+    "locations": ["Remote", "San Francisco, CA"],
+    "job_types": ["Full-time"],
+    "experience_levels": ["Mid-Level", "Senior"],
+    "salary_min": 120000,
+    "keywords": ["python", "react", "aws"],
+    "exclude_keywords": ["php", "wordpress"]
+  },
+  "experience": [ ... ],
+  "education": [ ... ],
+  "skills": { ... },
+  "projects": [ ... ]
+}
+```
 
 ## Tips for Best Results
 
-1. **Accurate Profile**: The more detailed your profile, the better the matching and resume generation
-2. **Specific Preferences**: Set clear job preferences and keywords to filter relevant jobs
-3. **Review Resumes**: Always review generated resumes - AI can make mistakes
-4. **LinkedIn Login**: Logging into LinkedIn provides access to more job details
-5. **Start Small**: Begin with a few applications to test the system
-6. **Monitor Results**: Track which resumes get responses and refine your profile
+1. **Start with Upload**: Use `upload --auto` for fastest results
+2. **Review Carefully**: Always review generated resumes - AI can make mistakes
+3. **Quality Over Quantity**: Apply to 5-10 well-matched jobs rather than 100 poor matches
+4. **Monitor Results**: Track which resumes get responses and refine your profile
+5. **Use LinkedIn Login**: Provides access to more complete job details
+6. **Check Generated PDFs**: Use 'v' to view PDFs before approving
 
 ## Troubleshooting
 
-### Selenium/Chrome Issues
+### Resume Upload Fails
 
-If you encounter browser automation issues:
+- Ensure resume is in PDF or DOCX format
+- Check that file path is correct
+- Try converting to PDF if DOCX fails
 
-```bash
-# Update Chrome WebDriver
-# Or use Playwright instead (already in requirements.txt)
-playwright install chromium
-```
+### Claude API Errors
 
-### OpenAI API Errors
+- Verify API key in `.env`
+- Check you have credits: https://console.anthropic.com/
+- Ensure API key has correct permissions
 
-If resume generation fails:
-- Check that your OpenAI API key is valid in `.env`
-- The system will fall back to template-based resumes if API is unavailable
+### Job Scraping Issues
 
-### Scraping Issues
+- Some sites implement anti-bot measures
+- Try with LinkedIn/Indeed credentials
+- Use delays between requests
+- Run with headless=False to see what's happening
 
-If job scraping fails:
-- Sites may have changed their HTML structure
-- Try using credentials (LinkedIn requires login for full access)
-- Some sites implement anti-bot measures - use delays and headless=False
+### Application Submission Fails
 
-## Legal and Ethical Considerations
+- Many companies use external portals (harder to automate)
+- System will report which applications need manual completion
+- Check error messages for specific issues
 
-⚠️ **Important Disclaimers**:
+## Legal & Ethical Considerations
+
+⚠️ **Important**:
 
 - This tool is for personal use only
-- Respect the Terms of Service of job platforms
+- Respect Terms of Service of job platforms
 - Don't spam applications - apply only to relevant positions
 - Review all resumes and applications before submission
 - Be honest in your applications
-- Some platforms prohibit automated applications - use at your own risk
+- Some platforms prohibit automation - use at your own risk
+
+**Use responsibly!** This tool helps automate tedious tasks, but you should always review everything before submission.
 
 ## Contributing
 
-Contributions are welcome! Areas for improvement:
+Contributions welcome! Areas for improvement:
 
 - Additional job board scrapers (Glassdoor, Monster, etc.)
-- Better form field detection and filling
+- Better form field detection
 - Cover letter generation
-- Interview scheduling automation
-- Application response tracking
-- Integration with email for notifications
+- Interview scheduling integration
+- Email tracking for responses
+- Analytics dashboard
 
 ## License
 
@@ -288,17 +402,16 @@ For issues and questions:
 
 ## Roadmap
 
-Future features planned:
 - [ ] More job board integrations
-- [ ] Cover letter generation
-- [ ] Email integration for tracking responses
-- [ ] Analytics dashboard
-- [ ] Chrome extension for one-click applications
+- [ ] AI-generated cover letters
+- [ ] Email integration for response tracking
+- [ ] Browser extension
 - [ ] Mobile app
-- [ ] Integration with job search APIs
+- [ ] Analytics and insights dashboard
+- [ ] Interview preparation tools
 
 ---
 
-**Happy job hunting! 🎉**
+**Powered by Claude 3.5 Sonnet** 🤖
 
-Remember: This tool helps automate the tedious parts of job applications, but you should always review and approve everything before it's submitted. Quality over quantity!
+Happy job hunting! Remember: This tool helps automate the tedious parts, but always review and approve everything before submission. Quality over quantity!

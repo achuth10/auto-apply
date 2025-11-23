@@ -19,11 +19,7 @@ for directory in [DATA_DIR, LOGS_DIR, RESUMES_DIR, HISTORY_DIR, CONFIG_DIR]:
     directory.mkdir(exist_ok=True, parents=True)
 
 # API Keys
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
-
-# AI Provider Selection ("openai" or "anthropic")
-AI_PROVIDER = os.getenv("AI_PROVIDER", "anthropic")  # Default to Claude
 
 # Job Platform Credentials
 LINKEDIN_EMAIL = os.getenv("LINKEDIN_EMAIL", "")

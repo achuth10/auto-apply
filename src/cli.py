@@ -176,15 +176,31 @@ class AutoJobApplicant:
         for idx, job in enumerate(jobs, 1):
             print(f"\n[{idx}/{len(jobs)}] Generating resume for {job.title} at {job.company}")
 
-            resume = self.resume_generator.generate_resume(job, tailored=True)
+            resume = self.resume_generator.generate_resume(job, format="pdf", tailored=True)
             resumes[job.id] = resume
 
             # Show resume to user for approval
-            print(f"\n{Fore.CYAN}Resume generated:{Style.RESET_ALL} {resume.file_path}")
-            print(f"Tailored keywords: {', '.join(resume.tailored_keywords[:5])}")
+            print(f"\n{Fore.CYAN}📄 Resume generated:{Style.RESET_ALL} {resume.file_path}")
+            print(f"✓ Format: PDF")
+            print(f"✓ Tailored keywords: {', '.join(resume.tailored_keywords[:5])}")
 
             # Ask for approval
-            approve = input(f"{Fore.GREEN}Use this resume? (y/n): {Style.RESET_ALL}").lower().strip()
+            approve = input(f"{Fore.GREEN}Use this resume? (y/n/v to view): {Style.RESET_ALL}").lower().strip()
+
+            if approve == 'v':
+                # Open the PDF for viewing
+                import subprocess
+                import platform
+                try:
+                    if platform.system() == 'Darwin':  # macOS
+                        subprocess.run(['open', resume.file_path])
+                    elif platform.system() == 'Windows':
+                        subprocess.run(['start', resume.file_path], shell=True)
+                    else:  # Linux
+                        subprocess.run(['xdg-open', resume.file_path])
+                    approve = input(f"{Fore.GREEN}Use this resume? (y/n): {Style.RESET_ALL}").lower().strip()
+                except:
+                    print("Could not open file viewer")
 
             if approve != 'y':
                 print(f"{Fore.YELLOW}⊗ Resume rejected, skipping application{Style.RESET_ALL}")
@@ -301,6 +317,84 @@ def profile(edit):
 
 
 @cli.command()
+@click.argument('resume_path', type=click.Path(exists=True), required=False)
+@click.option('--auto', is_flag=True, help='Automatically start job search after parsing')
+def upload(resume_path, auto):
+    """Upload your resume and automatically create profile. Optionally start job search."""
+    from src.resume_parser import ResumeParser
+    from src.config import save_user_profile, USER_PROFILE_PATH
+    import json
+
+    if not resume_path:
+        resume_path = click.prompt('Enter path to your resume (PDF or DOCX)')
+
+    print(f"\n{Fore.CYAN}{'='*70}{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}{'Resume Upload & Auto Profile Creation'.center(70)}{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}{'='*70}{Style.RESET_ALL}\n")
+
+    parser = ResumeParser()
+
+    try:
+        # Parse resume and infer preferences
+        profile = parser.create_user_profile(resume_path)
+
+        # Show extracted info
+        print(f"\n{Fore.GREEN}✓ Profile created successfully!{Style.RESET_ALL}\n")
+        print(f"{Fore.CYAN}Personal Info:{Style.RESET_ALL}")
+        print(f"  Name: {profile['personal_info'].get('name', 'N/A')}")
+        print(f"  Email: {profile['personal_info'].get('email', 'N/A')}")
+        print(f"  Location: {profile['personal_info'].get('location', 'N/A')}")
+
+        print(f"\n{Fore.CYAN}Inferred Job Preferences:{Style.RESET_ALL}")
+        prefs = profile['job_preferences']
+        print(f"  Target Titles: {', '.join(prefs.get('titles', [])[:3])}")
+        print(f"  Locations: {', '.join(prefs.get('locations', []))}")
+        print(f"  Min Salary: ${prefs.get('salary_min', 0):,}")
+        print(f"  Key Skills: {', '.join(prefs.get('keywords', [])[:8])}")
+
+        print(f"\n{Fore.CYAN}Experience:{Style.RESET_ALL}")
+        for exp in profile['experience'][:3]:
+            print(f"  • {exp.get('title', '')} at {exp.get('company', '')}")
+
+        # Ask to save
+        save = input(f"\n{Fore.GREEN}Save this profile? (y/n): {Style.RESET_ALL}").lower().strip()
+
+        if save == 'y':
+            save_user_profile(profile)
+            print(f"\n{Fore.GREEN}✓ Profile saved to {USER_PROFILE_PATH}{Style.RESET_ALL}")
+
+            if auto:
+                # Automatically start job search
+                print(f"\n{Fore.CYAN}🚀 Starting automatic job search...{Style.RESET_ALL}\n")
+
+                app = AutoJobApplicant()
+
+                # Use inferred titles for search
+                for title in prefs.get('titles', [])[:2]:  # Search for top 2 titles
+                    location = prefs.get('locations', ['Remote'])[0]
+                    print(f"\n{Fore.YELLOW}Searching for: {title} in {location}{Style.RESET_ALL}")
+
+                    app.scrape_jobs_workflow('linkedin', title, location, 30)
+
+                # Start review process
+                print(f"\n{Fore.CYAN}Starting job review process...{Style.RESET_ALL}")
+                app.review_jobs_workflow()
+
+            else:
+                print(f"\n{Fore.CYAN}Next Steps:{Style.RESET_ALL}")
+                print(f"  1. Run: {Fore.GREEN}python main.py scrape{Style.RESET_ALL} to find jobs")
+                print(f"  2. Run: {Fore.GREEN}python main.py review{Style.RESET_ALL} to apply")
+                print(f"\n Or use: {Fore.GREEN}python main.py upload <resume> --auto{Style.RESET_ALL} to do everything automatically!")
+
+        else:
+            print(f"\n{Fore.YELLOW}Profile not saved. You can edit it manually at {USER_PROFILE_PATH}{Style.RESET_ALL}")
+
+    except Exception as e:
+        print(f"\n{Fore.RED}✗ Error parsing resume: {e}{Style.RESET_ALL}")
+        print(f"\nPlease check that your resume is in PDF or DOCX format and try again.")
+
+
+@cli.command()
 def setup():
     """Initial setup wizard."""
     print(f"{Fore.CYAN}{'='*70}{Style.RESET_ALL}")
@@ -324,15 +418,23 @@ def setup():
     env_path = BASE_DIR / ".env"
     if not env_path.exists():
         print(f"\n{Fore.YELLOW}⚠ No .env file found{Style.RESET_ALL}")
-        print(f"Copy .env.example to .env and add your API keys:\n")
+        print(f"Copy .env.example to .env and add your API key:\n")
         print(f"  cp .env.example .env")
-        print(f"  # Then edit .env with your keys\n")
+        print(f"  # Then add your Anthropic API key\n")
     else:
         print(f"\n{Fore.GREEN}✓ .env file found{Style.RESET_ALL}")
 
-    print(f"\n{Fore.CYAN}Quick Start:{Style.RESET_ALL}")
-    print(f"  1. Edit config/user_profile.json with your information")
-    print(f"  2. Add your OpenAI API key to .env (optional, for AI resume generation)")
+    print(f"\n{Fore.CYAN}✨ NEW: Upload Resume Feature!{Style.RESET_ALL}")
+    print(f"  Simply upload your resume and let Claude do the rest:")
+    print(f"  {Fore.GREEN}python main.py upload /path/to/resume.pdf --auto{Style.RESET_ALL}")
+    print(f"\n  This will:")
+    print(f"    1. Extract all info from your resume")
+    print(f"    2. Infer what jobs you should apply for")
+    print(f"    3. Automatically search and apply to matching jobs")
+
+    print(f"\n{Fore.CYAN}Manual Workflow:{Style.RESET_ALL}")
+    print(f"  1. Upload resume: {Fore.GREEN}python main.py upload resume.pdf{Style.RESET_ALL}")
+    print(f"  2. Or edit config/user_profile.json manually")
     print(f"  3. Run: {Fore.GREEN}python main.py scrape{Style.RESET_ALL}")
     print(f"  4. Run: {Fore.GREEN}python main.py review{Style.RESET_ALL}")
     print(f"\nFor help: {Fore.GREEN}python main.py --help{Style.RESET_ALL}\n")
