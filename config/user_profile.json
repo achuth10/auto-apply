@@ -1,0 +1,77 @@
+{
+  "personal_info": {
+    "name": "Your Name",
+    "email": "your.email@example.com",
+    "phone": "+1-234-567-8900",
+    "location": "City, State",
+    "linkedin": "https://linkedin.com/in/yourprofile",
+    "github": "https://github.com/yourusername",
+    "portfolio": "https://yourportfolio.com"
+  },
+  "job_preferences": {
+    "titles": [
+      "Software Engineer",
+      "Full Stack Developer",
+      "Backend Developer",
+      "Python Developer"
+    ],
+    "locations": [
+      "Remote",
+      "San Francisco, CA",
+      "New York, NY"
+    ],
+    "job_types": ["Full-time", "Contract"],
+    "experience_levels": ["Mid-Level", "Senior"],
+    "salary_min": 100000,
+    "keywords": [
+      "python",
+      "django",
+      "react",
+      "aws",
+      "docker"
+    ],
+    "exclude_keywords": [
+      "salesforce",
+      "php",
+      "on-site only"
+    ]
+  },
+  "experience": [
+    {
+      "title": "Senior Software Engineer",
+      "company": "Tech Company Inc.",
+      "location": "San Francisco, CA",
+      "start_date": "2020-01",
+      "end_date": "present",
+      "description": [
+        "Led development of microservices architecture serving 1M+ users",
+        "Implemented CI/CD pipelines reducing deployment time by 60%",
+        "Mentored team of 5 junior developers"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "degree": "Bachelor of Science in Computer Science",
+      "institution": "University Name",
+      "location": "City, State",
+      "graduation_date": "2018",
+      "gpa": "3.8"
+    }
+  ],
+  "skills": {
+    "programming_languages": ["Python", "JavaScript", "Go", "SQL"],
+    "frameworks": ["Django", "React", "FastAPI", "Flask"],
+    "tools": ["Docker", "Kubernetes", "AWS", "Git", "PostgreSQL"],
+    "soft_skills": ["Leadership", "Communication", "Problem Solving"]
+  },
+  "certifications": [],
+  "projects": [
+    {
+      "name": "Open Source Project",
+      "description": "Built a popular library with 1k+ stars",
+      "url": "https://github.com/user/project",
+      "technologies": ["Python", "Docker"]
+    }
+  ]
+}
